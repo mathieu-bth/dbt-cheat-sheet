@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dbt Cheat Sheet</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAV
+══════════════════════════════════════════ -->
+<nav>
+  <div class="nav-brand">dbt <span>cheat sheet</span></div>
+  <ul class="nav-links">
+    <li><a href="#structure">Structure</a></li>
+    <li><a href="#cli">CLI Commands</a></li>
+    <li><a href="#selectors">Selectors</a></li>
+    <li><a href="#models">Models</a></li>
+    <li><a href="#ref-source">ref &amp; source</a></li>
+    <li><a href="#testing">Testing</a></li>
+    <li><a href="#jinja">Jinja</a></li>
+    <li><a href="#incremental">Incremental</a></li>
+    <li><a href="#yaml">YAML</a></li>
+    <li><a href="#packages">Packages</a></li>
+  </ul>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <span class="toggle-icon">☀️</span>
+    <span class="toggle-label">Light</span>
+  </button>
+  <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<script>
+  const btn    = document.getElementById('theme-toggle');
+  const icon   = btn.querySelector('.toggle-icon');
+  const label  = btn.querySelector('.toggle-label');
+  const root   = document.documentElement;
+  const burger = document.getElementById('burger');
+  const links  = document.querySelector('.nav-links');
+
+  // ── Theme ──
+  function applyTheme(theme) {
+    root.dataset.theme = theme;
+    const isDark = theme === 'dark';
+    icon.textContent  = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Light' : 'Dark';
+    localStorage.setItem('theme', theme);
+  }
+
+  applyTheme(localStorage.getItem('theme') || 'light');
+
+  btn.addEventListener('click', () => {
+    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  // ── Burger ──
+  function closeMenu() {
+    links.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+  }
+
+  burger.addEventListener('click', () => {
+    const isOpen = links.classList.toggle('open');
+    burger.classList.toggle('open', isOpen);
+    burger.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Close on link click
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+  // Close on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('nav')) closeMenu();
+  });
+</script>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<div class="wrapper">
+  <div class="hero">
+    <h1><em>dbt</em> Cheat Sheet</h1>
+    <p>Quick reference for data build tool — models, tests, Jinja, CLI &amp; more.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       1. PROJECT STRUCTURE
+  ══════════════════════════════════════ -->
+  <section id="structure">
+    <div class="section-title"><span class="icon">📁</span> Project Structure</div>
+    <div class="card">
+      <pre><code><span class="cm"># Typical dbt project layout</span>
+my_project/
+├── dbt_project.yml          <span class="cm"># project config</span>
+├── profiles.yml             <span class="cm"># connection profiles (usually ~/.dbt/)</span>
+├── packages.yml             <span class="cm"># third-party packages</span>
+├── models/
+│   ├── staging/             <span class="cm"># stg_* — raw → typed/renamed</span>
+│   │   ├── _sources.yml
+│   │   └── stg_orders.sql
+│   ├── intermediate/        <span class="cm"># int_* — joins, business logic</span>
+│   └── marts/               <span class="cm"># fct_* / dim_* — final tables</span>
+│       ├── _schema.yml
+│       └── fct_orders.sql
+├── tests/                   <span class="cm"># singular SQL tests</span>
+├── macros/                  <span class="cm"># reusable Jinja functions</span>
+├── seeds/                   <span class="cm"># static CSV → tables</span>
+├── snapshots/               <span class="cm"># SCD type-2 history</span>
+├── analyses/                <span class="cm"># ad-hoc queries (not materialised)</span>
+└── docs/                    <span class="cm"># doc blocks (*.md)</span></code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       2. CLI COMMANDS
+  ══════════════════════════════════════ -->
+  <section id="cli">
+    <div class="section-title"><span class="icon">⌨️</span> CLI Commands</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">Core commands</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>dbt run</code></td><td>Execute models (SQL)</td></tr>
+              <tr><td><code>dbt test</code></td><td>Run all tests</td></tr>
+              <tr><td><code>dbt build</code></td><td>run + test + seed + snapshot</td></tr>
+              <tr><td><code>dbt compile</code></td><td>Compile Jinja → SQL (no execution)</td></tr>
+              <tr><td><code>dbt seed</code></td><td>Load CSV seeds to warehouse</td></tr>
+              <tr><td><code>dbt snapshot</code></td><td>Execute snapshots</td></tr>
+              <tr><td><code>dbt docs generate</code></td><td>Build documentation site</td></tr>
+              <tr><td><code>dbt docs serve</code></td><td>Serve docs locally</td></tr>
+              <tr><td><code>dbt debug</code></td><td>Check connection &amp; config</td></tr>
+              <tr><td><code>dbt deps</code></td><td>Install packages</td></tr>
+              <tr><td><code>dbt clean</code></td><td>Delete target/ &amp; dbt_packages/</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Useful flags</div>
+        <pre><code><span class="cm"># Run / test specific models</span>
+dbt run <span class="ac">--select</span> staging.stg_orders
+dbt run <span class="ac">--select</span> tag:daily
+dbt run <span class="ac">--exclude</span> mart.fct_heavy
+
+<span class="cm"># Graph operators (see Selectors section)</span>
+dbt run <span class="ac">-s</span> +fct_orders      <span class="cm"># model + all ancestors</span>
+dbt run <span class="ac">-s</span> fct_orders+     <span class="cm"># model + all descendants</span>
+dbt run <span class="ac">-s</span> +fct_orders+    <span class="cm"># full lineage</span>
+dbt run <span class="ac">-s</span> 1+fct_orders    <span class="cm"># model + 1 parent level</span>
+
+<span class="cm"># Target &amp; threads</span>
+dbt run <span class="ac">--target</span> prod
+dbt run <span class="ac">--threads</span> 8
+
+<span class="cm"># Full refresh incremental</span>
+dbt run <span class="ac">--full-refresh</span>
+
+<span class="cm"># Defer to prod state (slim CI)</span>
+dbt run <span class="ac">--defer --state</span> ./prod_artifacts</code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       3. SELECTOR SYNTAX
+  ══════════════════════════════════════ -->
+  <section id="selectors">
+    <div class="section-title"><span class="icon">🎯</span> Selector Syntax</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">Graph operators</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Syntax</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>model_name</code></td><td>Exact model</td></tr>
+              <tr><td><code>+model_name</code></td><td>Model + all ancestors</td></tr>
+              <tr><td><code>model_name+</code></td><td>Model + all descendants</td></tr>
+              <tr><td><code>+model_name+</code></td><td>Full lineage graph</td></tr>
+              <tr><td><code>2+model_name</code></td><td>Model + 2 parent levels</td></tr>
+              <tr><td><code>model_name+3</code></td><td>Model + 3 child levels</td></tr>
+              <tr><td><code>@model_name</code></td><td>Model + ancestors + all descendants of ancestors</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Selector methods</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td><code>tag:</code></td><td><code>tag:daily</code></td></tr>
+              <tr><td><code>path:</code></td><td><code>path:models/staging</code></td></tr>
+              <tr><td><code>config:</code></td><td><code>config.materialized:table</code></td></tr>
+              <tr><td><code>package:</code></td><td><code>package:dbt_utils</code></td></tr>
+              <tr><td><code>source:</code></td><td><code>source:raw_shopify+</code></td></tr>
+              <tr><td><code>exposure:</code></td><td><code>exposure:orders_dashboard+</code></td></tr>
+              <tr><td><code>fqn:</code></td><td><code>fqn:my_project.marts.*</code></td></tr>
+              <tr><td><code>state:</code></td><td><code>state:modified+</code></td></tr>
+              <tr><td><code>result:</code></td><td><code>result:error+</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Intersections, unions &amp; YAML selectors</div>
+        <pre><code><span class="cm"># Union (space-separated = OR)</span>
+dbt run <span class="ac">-s</span> stg_orders fct_orders
+
+<span class="cm"># Intersection (comma = AND)</span>
+dbt run <span class="ac">-s</span> tag:daily,config.materialized:table
+
+<span class="cm"># YAML selectors file (selectors.yml)</span>
+selectors:
+  - name: <span class="str">nightly_models</span>
+    definition:
+      union:
+        - method: tag
+          value: <span class="str">daily</span>
+        - method: tag
+          value: <span class="str">hourly</span>
+
+<span class="cm"># Use it:</span>
+dbt run <span class="ac">--selector</span> nightly_models</code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       4. MODEL CONFIGURATION
+  ══════════════════════════════════════ -->
+  <section id="models">
+    <div class="section-title"><span class="icon">⚙️</span> Model Configuration</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">config() block</div>
+        <pre><code><span class="cm">-- Top of any .sql model file</span>
+<span class="fn">{{</span>
+  <span class="fn">config</span>(
+    materialized  = <span class="str">'table'</span>,
+    schema        = <span class="str">'marts'</span>,
+    alias         = <span class="str">'orders_final'</span>,
+    tags          = [<span class="str">'daily'</span>, <span class="str">'finance'</span>],
+    meta          = {<span class="str">'owner'</span>: <span class="str">'data_team'</span>},
+    post_hook     = <span class="str">"grant select on {{ this }} to role reporter"</span>
+  )
+<span class="fn">}}</span>
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> ...</code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Materialization types</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Behaviour</th><th>Use when</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>view</code></td>
+                <td>Virtual — no data stored</td>
+                <td>Default, cheap staging</td>
+              </tr>
+              <tr>
+                <td><code>table</code></td>
+                <td>Full rebuild each run</td>
+                <td>Marts, performance</td>
+              </tr>
+              <tr>
+                <td><code>incremental</code></td>
+                <td>Append/merge new rows</td>
+                <td>Large fact tables</td>
+              </tr>
+              <tr>
+                <td><code>ephemeral</code></td>
+                <td>CTE, no object created</td>
+                <td>Intermediate reuse</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note"><strong>Tip:</strong> ephemeral models can't be <code>ref()</code>-ed across separate SQL files by downstream tools — use <code>view</code> if you need lineage visibility.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">dbt_project.yml — global config</div>
+        <pre><code><span class="cm"># Apply config to all models in a folder</span>
+models:
+  my_project:
+    staging:
+      +materialized: <span class="str">view</span>
+      +schema: <span class="str">staging</span>
+    marts:
+      +materialized: <span class="str">table</span>
+      +tags: [<span class="str">'mart'</span>]
+    intermediate:
+      +materialized: <span class="str">ephemeral</span></code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       4. REF & SOURCE
+  ══════════════════════════════════════ -->
+  <section id="ref-source">
+    <div class="section-title"><span class="icon">🔗</span> ref() &amp; source()</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">ref() — model dependencies</div>
+        <pre><code><span class="cm">-- Reference another model</span>
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span> <span class="fn">{{ ref('stg_orders') }}</span>
+
+<span class="cm">-- Reference a model in another project (cross-project)</span>
+<span class="kw">FROM</span> <span class="fn">{{ ref('other_project', 'stg_orders') }}</span>
+
+<span class="cm">-- ref() resolves to the full relation name:</span>
+<span class="cm">-- analytics.staging.stg_orders (database.schema.table)</span></code></pre>
+        <div class="note"><strong>Always</strong> use <code>ref()</code> instead of hard-coded table names — it builds the DAG and handles schema routing automatically.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">source() — raw data</div>
+        <pre><code><span class="cm">-- _sources.yml definition first:</span>
+sources:
+  - name: <span class="str">raw_shopify</span>
+    database: <span class="str">raw</span>
+    schema: <span class="str">shopify</span>
+    tables:
+      - name: <span class="str">orders</span>
+        loaded_at_field: <span class="str">_fivetran_synced</span>
+        freshness:
+          warn_after: {count: <span class="nu">12</span>, period: hour}
+          error_after: {count: <span class="nu">24</span>, period: hour}
+
+<span class="cm">-- Then in a model:</span>
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span> <span class="fn">{{ source('raw_shopify', 'orders') }}</span></code></pre>
+        <pre><code><span class="cm"># Test source freshness</span>
+dbt source freshness</code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       5. TESTING
+  ══════════════════════════════════════ -->
+  <section id="testing">
+    <div class="section-title"><span class="icon">✅</span> Testing</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">Generic tests (schema.yml)</div>
+        <pre><code>models:
+  - name: <span class="str">fct_orders</span>
+    columns:
+      - name: <span class="str">order_id</span>
+        tests:
+          - <span class="str">unique</span>
+          - <span class="str">not_null</span>
+      - name: <span class="str">status</span>
+        tests:
+          - accepted_values:
+              values: [<span class="str">'placed'</span>, <span class="str">'shipped'</span>, <span class="str">'returned'</span>]
+      - name: <span class="str">customer_id</span>
+        tests:
+          - relationships:
+              to: <span class="fn">ref('dim_customers')</span>
+              field: <span class="str">customer_id</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Singular tests</div>
+        <pre><code><span class="cm">-- tests/assert_no_negative_revenue.sql</span>
+<span class="cm">-- Test FAILS if this query returns rows</span>
+
+<span class="kw">SELECT</span> order_id, revenue
+<span class="kw">FROM</span> <span class="fn">{{ ref('fct_orders') }}</span>
+<span class="kw">WHERE</span> revenue &lt; <span class="nu">0</span></code></pre>
+        <div class="note"><strong>Convention:</strong> name singular tests <code>assert_*</code>. Any row returned = failure.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">dbt_utils tests</div>
+        <pre><code>tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+        - <span class="str">order_id</span>
+        - <span class="str">line_item_id</span>
+
+  - dbt_utils.not_null_proportion:
+      at_least: <span class="nu">0.95</span>   <span class="cm"># 95% non-null</span>
+
+  - dbt_utils.expression_is_true:
+      expression: <span class="str">"revenue >= 0"</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">dbt_expectations tests</div>
+        <pre><code>tests:
+  - dbt_expectations.expect_column_values_to_be_between:
+      min_value: <span class="nu">0</span>
+      max_value: <span class="nu">1000000</span>
+
+  - dbt_expectations.expect_column_to_exist
+
+  - dbt_expectations.expect_table_row_count_to_be_between:
+      min_value: <span class="nu">1000</span>
+
+  - dbt_expectations.expect_column_values_to_match_regex:
+      regex: <span class="str">"^[A-Z]{3}-[0-9]{6}$"</span></code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       6. JINJA & MACROS
+  ══════════════════════════════════════ -->
+  <section id="jinja">
+    <div class="section-title"><span class="icon">🧩</span> Jinja &amp; Macros</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">Jinja syntax</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tag</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>{{ expression }}</code></td><td>Output a value</td></tr>
+              <tr><td><code>{% statement %}</code></td><td>Control flow (no output)</td></tr>
+              <tr><td><code>{# comment #}</code></td><td>Comment (not rendered)</td></tr>
+              <tr><td><code>-</code> (dash)</td><td>Strip whitespace: <code>{{- val -}}</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre><code><span class="cm">-- Variables</span>
+<span class="fn">{%</span> <span class="kw">set</span> my_date = <span class="str">'2024-01-01'</span> <span class="fn">%}</span>
+<span class="fn">{%</span> <span class="kw">set</span> cols = [<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>] <span class="fn">%}</span>
+
+<span class="cm">-- Conditionals</span>
+<span class="fn">{%</span> <span class="kw">if</span> target.name == <span class="str">'prod'</span> <span class="fn">%}</span>
+  <span class="kw">WHERE</span> is_test = <span class="kw">false</span>
+<span class="fn">{%</span> <span class="kw">endif</span> <span class="fn">%}</span>
+
+<span class="cm">-- Loop</span>
+<span class="fn">{%</span> <span class="kw">for</span> col <span class="kw">in</span> cols <span class="fn">%}</span>
+  sum(<span class="fn">{{ col }}</span>) <span class="kw">as</span> total_<span class="fn">{{ col }}</span>
+  <span class="fn">{%</span> <span class="kw">if</span> <span class="kw">not</span> loop.last <span class="fn">%}</span>,<span class="fn">{%</span> <span class="kw">endif</span> <span class="fn">%}</span>
+<span class="fn">{%</span> <span class="kw">endfor</span> <span class="fn">%}</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Macros</div>
+        <pre><code><span class="cm">-- macros/cents_to_dollars.sql</span>
+<span class="fn">{%</span> <span class="kw">macro</span> <span class="fn">cents_to_dollars</span>(column_name, decimals=<span class="nu">2</span>) <span class="fn">%}</span>
+  round(<span class="fn">{{ column_name }}</span> / <span class="nu">100.0</span>, <span class="fn">{{ decimals }}</span>)
+<span class="fn">{%</span> <span class="kw">endmacro</span> <span class="fn">%}</span>
+
+<span class="cm">-- Usage in a model:</span>
+<span class="kw">SELECT</span>
+  order_id,
+  <span class="fn">{{ cents_to_dollars('amount_cents') }}</span> <span class="kw">as</span> amount_usd
+<span class="kw">FROM</span> <span class="fn">{{ ref('stg_orders') }}</span></code></pre>
+        <pre><code><span class="cm">-- Macro with run_query (meta-programming)</span>
+<span class="fn">{%</span> <span class="kw">macro</span> <span class="fn">get_column_values</span>(table, column) <span class="fn">%}</span>
+  <span class="fn">{%</span> <span class="kw">set</span> query <span class="fn">%}</span>
+    <span class="kw">SELECT DISTINCT</span> <span class="fn">{{ column }}</span> <span class="kw">FROM</span> <span class="fn">{{ table }}</span>
+  <span class="fn">{%</span> <span class="kw">endset</span> <span class="fn">%}</span>
+  <span class="fn">{%</span> <span class="kw">set</span> results = <span class="fn">run_query</span>(query) <span class="fn">%}</span>
+  <span class="fn">{{ return(results.columns[0].values()) }}</span>
+<span class="fn">{%</span> <span class="kw">endmacro</span> <span class="fn">%}</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Built-in variables &amp; functions</div>
+        <dl>
+          <dt>target.name</dt><dd>Active profile target (dev, prod…)</dd>
+          <dt>target.schema</dt><dd>Target schema</dd>
+          <dt>this</dt><dd>Current model relation (in hooks)</dd>
+          <dt>env_var('VAR')</dt><dd>Read environment variable</dd>
+          <dt>var('name', default)</dt><dd>Project variable from dbt_project.yml</dd>
+          <dt>log('msg', info=True)</dt><dd>Print to console</dd>
+          <dt>run_started_at</dt><dd>Timestamp of current run</dd>
+          <dt>execute</dt><dd>True during run, False during parse</dd>
+        </dl>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       7. INCREMENTAL MODELS
+  ══════════════════════════════════════ -->
+  <section id="incremental">
+    <div class="section-title"><span class="icon">📈</span> Incremental Models</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">Standard pattern</div>
+        <pre><code><span class="fn">{{</span>
+  <span class="fn">config</span>(
+    materialized = <span class="str">'incremental'</span>,
+    unique_key   = <span class="str">'event_id'</span>,       <span class="cm"># for merge/delete+insert</span>
+    on_schema_change = <span class="str">'sync_all_columns'</span>
+  )
+<span class="fn">}}</span>
+
+<span class="kw">SELECT</span>
+  event_id,
+  user_id,
+  event_at,
+  event_type
+<span class="kw">FROM</span> <span class="fn">{{ source('raw', 'events') }}</span>
+
+<span class="fn">{%</span> <span class="kw">if</span> <span class="fn">is_incremental()</span> <span class="fn">%}</span>
+  <span class="cm">-- Only process new rows on incremental runs</span>
+  <span class="kw">WHERE</span> event_at &gt; (
+    <span class="kw">SELECT</span> <span class="fn">max</span>(event_at) <span class="kw">FROM</span> <span class="fn">{{ this }}</span>
+  )
+<span class="fn">{%</span> <span class="kw">endif</span> <span class="fn">%}</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Incremental strategies</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Strategy</th><th>Behaviour</th><th>Needs unique_key</th></tr></thead>
+            <tbody>
+              <tr><td><code>append</code></td><td>Insert new rows only</td><td>No</td></tr>
+              <tr><td><code>merge</code></td><td>Upsert on unique_key</td><td>Yes</td></tr>
+              <tr><td><code>delete+insert</code></td><td>Delete matching, then insert</td><td>Yes</td></tr>
+              <tr><td><code>insert_overwrite</code></td><td>Replace partitions (BigQuery)</td><td>No</td></tr>
+              <tr><td><code>microbatch</code></td><td>dbt 1.9+ batch processing</td><td>No</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre><code><span class="fn">{{</span> <span class="fn">config</span>(
+  materialized      = <span class="str">'incremental'</span>,
+  incremental_strategy = <span class="str">'merge'</span>,
+  unique_key        = [<span class="str">'order_id'</span>, <span class="str">'item_id'</span>],
+  merge_update_columns = [<span class="str">'status'</span>, <span class="str">'updated_at'</span>]
+) <span class="fn">}}</span></code></pre>
+        <div class="note"><strong>Full refresh:</strong> <code>dbt run --full-refresh</code> drops and rebuilds the table entirely, ignoring <code>is_incremental()</code>.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       8. YAML / PROPERTIES
+  ══════════════════════════════════════ -->
+  <section id="yaml">
+    <div class="section-title"><span class="icon">📄</span> YAML / Properties</div>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-title">_schema.yml structure</div>
+        <pre><code>version: <span class="nu">2</span>
+
+models:
+  - name: <span class="str">fct_orders</span>
+    description: <span class="str">"One row per order."</span>
+    meta:
+      owner: <span class="str">"data-team@company.com"</span>
+    config:
+      tags: [<span class="str">'finance'</span>, <span class="str">'daily'</span>]
+    columns:
+      - name: <span class="str">order_id</span>
+        description: <span class="str">"Surrogate key for orders."</span>
+        tests:
+          - unique
+          - not_null
+      - name: <span class="str">status</span>
+        tests:
+          - accepted_values:
+              values: [<span class="str">'placed'</span>,<span class="str">'shipped'</span>,<span class="str">'returned'</span>]</code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Doc blocks</div>
+        <pre><code><span class="cm">-- docs/orders.md</span>
+<span class="fn">{%</span> <span class="kw">docs</span> order_id <span class="fn">%}</span>
+The unique identifier for an order.
+Generated by the upstream ERP system.
+<span class="fn">{%</span> <span class="kw">enddocs</span> <span class="fn">%}</span>
+
+<span class="fn">{%</span> <span class="kw">docs</span> order_status <span class="fn">%}</span>
+Lifecycle status of the order.
+Possible values: **placed**, **shipped**, **returned**.
+<span class="fn">{%</span> <span class="kw">enddocs</span> <span class="fn">%}</span></code></pre>
+        <pre><code><span class="cm"># Reference in schema.yml</span>
+columns:
+  - name: <span class="str">order_id</span>
+    description: <span class="str">"{{ doc('order_id') }}"</span>
+  - name: <span class="str">status</span>
+    description: <span class="str">"{{ doc('order_status') }}"</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Exposures</div>
+        <pre><code>exposures:
+  - name: <span class="str">orders_dashboard</span>
+    type: <span class="str">dashboard</span>       <span class="cm"># dashboard | notebook | analysis | ml | application</span>
+    maturity: <span class="str">high</span>
+    url: <span class="str">"https://metabase.company.com/dashboard/42"</span>
+    description: <span class="str">"Finance orders dashboard"</span>
+    owner:
+      name: <span class="str">"Alice"</span>
+      email: <span class="str">"alice@company.com"</span>
+    depends_on:
+      - <span class="fn">ref('fct_orders')</span>
+      - <span class="fn">ref('dim_customers')</span></code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       9. USEFUL PACKAGES
+  ══════════════════════════════════════ -->
+  <section id="packages">
+    <div class="section-title"><span class="icon">📦</span> Useful Packages</div>
+    <div class="card">
+      <div class="card-title">packages.yml</div>
+      <pre><code>packages:
+  - package: <span class="str">dbt-labs/dbt_utils</span>
+    version: <span class="str">[">=1.0.0", "<2.0.0"]</span>
+  - package: <span class="str">calogica/dbt_expectations</span>
+    version: <span class="str">[">=0.10.0", "<1.0.0"]</span>
+  - package: <span class="str">dbt-labs/codegen</span>
+    version: <span class="str">[">=0.12.0", "<1.0.0"]</span>
+  - package: <span class="str">dbt-labs/audit_helper</span>
+    version: <span class="str">[">=0.9.0", "<1.0.0"]</span></code></pre>
+    </div>
+
+    <div class="grid" style="margin-top:1rem">
+
+      <div class="card">
+        <div class="card-title">dbt_utils — highlights</div>
+        <pre><code><span class="cm">-- Star: expand all columns except…</span>
+<span class="kw">SELECT</span> <span class="fn">{{ dbt_utils.star(ref('stg_orders'), except=["_loaded_at"]) }}</span>
+
+<span class="cm">-- Surrogate key</span>
+<span class="fn">{{ dbt_utils.generate_surrogate_key(['order_id', 'item_id']) }}</span> <span class="kw">as</span> sk
+
+<span class="cm">-- Date spine</span>
+<span class="fn">{{ dbt_utils.date_spine(
+    datepart="day",
+    start_date="cast('2020-01-01' as date)",
+    end_date="cast('2025-01-01' as date)"
+) }}</span>
+
+<span class="cm">-- Pivot</span>
+<span class="fn">{{ dbt_utils.pivot('status', dbt_utils.get_column_values(ref('stg_orders'), 'status')) }}</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">codegen — generate boilerplate</div>
+        <pre><code><span class="cm"># Generate source YAML from existing tables</span>
+dbt run-operation <span class="fn">codegen.generate_source</span> \
+  <span class="ac">--args</span> <span class="str">'{"schema_name": "shopify", "database_name": "raw"}'</span>
+
+<span class="cm"># Generate model YAML (columns + types)</span>
+dbt run-operation <span class="fn">codegen.generate_model_yaml</span> \
+  <span class="ac">--args</span> <span class="str">'{"model_names": ["stg_orders"]}'</span>
+
+<span class="cm"># Generate base model SQL from a source</span>
+dbt run-operation <span class="fn">codegen.generate_base_model</span> \
+  <span class="ac">--args</span> <span class="str">'{"source_name": "raw_shopify", "table_name": "orders"}'</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">audit_helper — compare models</div>
+        <pre><code><span class="cm"># Compare row counts &amp; columns between two relations</span>
+dbt run-operation <span class="fn">audit_helper.compare_relations</span> \
+  <span class="ac">--args</span> <span class="str">'{
+    "a_relation": "ref(\"fct_orders\")",
+    "b_relation": "ref(\"fct_orders_v2\")",
+    "primary_key": "order_id"
+  }'</span>
+
+<span class="cm"># Useful during refactors to validate parity</span></code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Package summary</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Package</th><th>Best for</th></tr></thead>
+            <tbody>
+              <tr><td><code>dbt_utils</code></td><td>Macros: star, surrogate key, date spine, pivot, tests</td></tr>
+              <tr><td><code>dbt_expectations</code></td><td>Rich data-quality tests (Great Expectations style)</td></tr>
+              <tr><td><code>codegen</code></td><td>Auto-generate YAML &amp; base model SQL</td></tr>
+              <tr><td><code>audit_helper</code></td><td>Compare relations during refactors</td></tr>
+              <tr><td><code>dbt_project_evaluator</code></td><td>Enforce dbt best practices as tests</td></tr>
+              <tr><td><code>elementary</code></td><td>Data observability &amp; anomaly detection</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    dbt cheat sheet &mdash; built with plain HTML &amp; CSS &mdash; 2025
+  </footer>
+</div>
+
+</body>
+</html>
