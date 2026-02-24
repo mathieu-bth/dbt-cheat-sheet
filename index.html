@@ -12,7 +12,7 @@
      NAV
 ══════════════════════════════════════════ -->
 <nav>
-  <div class="nav-brand">dbt <span>cheat sheet</span></div>
+  <div class="nav-brand">dbt <span>Cheat Sheet</span></div>
   <ul class="nav-links">
     <li><a href="#structure">Structure</a></li>
     <li><a href="#cli">CLI Commands</a></li>
@@ -77,6 +77,34 @@
   document.addEventListener('click', e => {
     if (!e.target.closest('nav')) closeMenu();
   });
+
+  // ── Anchor copy buttons ──
+  document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('section[id]').forEach(section => {
+    const title = section.querySelector('.section-title');
+    if (!title) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'anchor-btn';
+    btn.title = 'Copy link';
+    btn.setAttribute('aria-label', 'Copy section link');
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+    title.appendChild(btn);
+
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const url = `${location.origin}${location.pathname}#${section.id}`;
+      navigator.clipboard.writeText(url).then(() => {
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+          btn.classList.remove('copied');
+        }, 1800);
+      });
+    });
+  });
+  }); // DOMContentLoaded
 </script>
 
 <!-- ══════════════════════════════════════════

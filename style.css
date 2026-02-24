@@ -79,7 +79,7 @@ nav {
   flex-shrink: 0;
 }
 
-.nav-brand span { color: var(--text-muted); font-weight: 400; }
+.nav-brand span { color: var(--text); font-weight: 700; }
 
 .nav-links {
   display: flex;
@@ -157,6 +157,43 @@ nav {
 }
 
 .theme-toggle .toggle-icon { font-size: 0.9rem; }
+
+/* ── Anchor copy button ── */
+.anchor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.4rem;
+  padding: 0.15rem 0.35rem;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.section-title:hover .anchor-btn,
+.anchor-btn:focus {
+  opacity: 1;
+}
+
+.anchor-btn:hover {
+  color: var(--accent);
+  border-color: var(--border);
+  background: var(--bg-code);
+}
+
+.anchor-btn.copied {
+  opacity: 1;
+  color: var(--string);
+  border-color: var(--border);
+  background: var(--bg-code);
+}
 
 /* ── Layout ── */
 .wrapper {
