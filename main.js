@@ -40,11 +40,21 @@ document.addEventListener('click', e => {
   if (!e.target.closest('nav')) closeMenu();
 });
 
-// ── Anchor copy buttons ──
+// ── Anchor copy buttons + Back to top (require full DOM) ──
 const LINK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
 const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Back to top
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 300);
+  }, { passive: true });
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Anchor copy buttons
   document.querySelectorAll('section[id]').forEach(section => {
     const title = section.querySelector('.section-title');
     if (!title) return;

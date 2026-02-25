@@ -390,6 +390,38 @@ dl { display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1rem; font-siz
 dt { color: var(--fn); font-family: monospace; white-space: nowrap; padding-top: 0.05rem; }
 dd { color: var(--text-muted); }
 
+/* ── Back to top ── */
+.back-to-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 99;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--bg-code);
+}
+
 /* ── Footer ── */
 footer {
   text-align: center;
