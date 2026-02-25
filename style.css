@@ -58,10 +58,13 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 /* ── Nav ── */
-nav {
+header {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+nav {
   background: var(--nav-bg);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -103,10 +106,15 @@ nav {
   transition: color 0.15s, background 0.15s;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links a.active {
   color: var(--text);
   background: var(--border);
   text-decoration: none;
+}
+
+.nav-links a.active {
+  color: var(--accent);
 }
 
 /* ── Burger button ── */

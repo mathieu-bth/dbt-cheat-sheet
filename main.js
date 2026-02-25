@@ -45,6 +45,20 @@ const LINK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" st
 const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Active nav link
+  const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+
+  const sectionObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      navAnchors.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    });
+  }, { rootMargin: '-56px 0px -70% 0px' });
+
+  document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
+
   // Back to top
   const backToTop = document.getElementById('back-to-top');
   window.addEventListener('scroll', () => {
