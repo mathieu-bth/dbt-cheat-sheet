@@ -600,6 +600,23 @@ columns:
   <section id="packages">
     <h2 class="section-title"><span class="icon">📦</span> Useful Packages</h2>
     <div class="card">
+      <div class="card-title">Package summary</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Package</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td><code>dbt_utils</code></td><td>Macros: star, surrogate key, date spine, pivot, tests</td></tr>
+            <tr><td><code>dbt_expectations</code></td><td>Rich data-quality tests (Great Expectations style)</td></tr>
+            <tr><td><code>codegen</code></td><td>Auto-generate YAML &amp; base model SQL</td></tr>
+            <tr><td><code>audit_helper</code></td><td>Compare relations during refactors</td></tr>
+            <tr><td><code>dbt_project_evaluator</code></td><td>Enforce dbt best practices as tests</td></tr>
+            <tr><td><code>elementary</code></td><td>Data observability &amp; anomaly detection</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card grid-sub">
       <div class="card-title">packages.yml</div>
       <pre><code>packages:
   - package: <span class="str">dbt-labs/dbt_utils</span>
@@ -661,28 +678,12 @@ dbt run-operation <span class="fn">audit_helper.compare_relations</span> \
 <span class="cm"># Useful during refactors to validate parity</span></code></pre>
       </div>
 
-      <div class="card">
-        <div class="card-title">Package summary</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Package</th><th>Best for</th></tr></thead>
-            <tbody>
-              <tr><td><code>dbt_utils</code></td><td>Macros: star, surrogate key, date spine, pivot, tests</td></tr>
-              <tr><td><code>dbt_expectations</code></td><td>Rich data-quality tests (Great Expectations style)</td></tr>
-              <tr><td><code>codegen</code></td><td>Auto-generate YAML &amp; base model SQL</td></tr>
-              <tr><td><code>audit_helper</code></td><td>Compare relations during refactors</td></tr>
-              <tr><td><code>dbt_project_evaluator</code></td><td>Enforce dbt best practices as tests</td></tr>
-              <tr><td><code>elementary</code></td><td>Data observability &amp; anomaly detection</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
     </div>
   </section>
 
   <footer>
-    dbt cheat sheet &mdash; built with plain HTML &amp; CSS &mdash; 2025
+    dbt cheat sheet &mdash; built with plain HTML &amp; CSS &mdash; 2026
   </footer>
 </main>
 
