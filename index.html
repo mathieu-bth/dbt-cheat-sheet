@@ -389,7 +389,7 @@ dbt source freshness</code></pre>
 
       <div class="card">
         <div class="card-title">Singular tests</div>
-        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.25rem">Custom SQL files in <code>tests/</code> that express business-specific assertions generic tests can't cover. dbt runs the query — <strong>any row returned = failure</strong>.</p>
+        <p class="card-desc">Custom SQL files in <code>tests/</code> that express business-specific assertions generic tests can't cover. dbt runs the query — <strong>any row returned = failure</strong>.</p>
         <pre><code><span class="cm">-- tests/assert_no_negative_revenue.sql</span>
 <span class="kw">SELECT</span> order_id, revenue
 <span class="kw">FROM</span> <span class="fn">{{ ref('fct_orders') }}</span>
@@ -612,7 +612,7 @@ columns:
     version: <span class="str">[">=0.9.0", "<1.0.0"]</span></code></pre>
     </div>
 
-    <div class="grid" style="margin-top:1rem">
+    <div class="grid grid-sub">
 
       <div class="card">
         <div class="card-title">dbt_utils — highlights</div>

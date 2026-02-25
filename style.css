@@ -17,6 +17,7 @@
   --comment:     #546e7a;
   --fn:          #82aaff;
   --tag:         #f07178;
+  --nu:          #f78c6c;
   --nav-bg:      rgba(15, 17, 23, 0.92);
   --nav-h:       56px;
   --radius:      8px;
@@ -39,6 +40,7 @@
   --comment:     #7a8a9a;
   --fn:          #1a52c4;
   --tag:         #b02020;
+  --nu:          #c2410c;
   --nav-bg:      rgba(244, 245, 247, 0.92);
 }
 
@@ -236,6 +238,10 @@ nav {
   grid-column: 1 / -1;
 }
 
+.grid-sub {
+  margin-top: 1rem;
+}
+
 /* ── Section ── */
 section {
   scroll-margin-top: calc(var(--nav-h) + 1rem);
@@ -286,7 +292,7 @@ section:first-of-type {
 pre {
   background: var(--bg-code);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 1rem 1.1rem;
   overflow-x: auto;
   font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
@@ -304,7 +310,14 @@ code {
 .cm  { color: var(--comment); font-style: italic; }
 .tg  { color: var(--tag); }
 .ac  { color: var(--accent); }
-.nu  { color: #f78c6c; }
+.nu  { color: var(--nu); }
+
+/* ── Card description ── */
+.card-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
 
 /* ── Inline code ── */
 p code, li code, td code {
