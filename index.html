@@ -3,7 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dbt Cheat Sheet</title>
+  <title>dbt Cheat Sheet — Commands, Models, Jinja, Tests &amp; Selectors</title>
+  <meta name="description" content="Quick reference for dbt (data build tool): CLI commands, model configuration, Jinja &amp; macros, incremental models, selector syntax, testing and useful packages." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mathieu-bth.github.io/dbt-cheat-sheet" />
+
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="dbt Cheat Sheet" />
+  <meta property="og:description" content="Quick reference for dbt: CLI, models, Jinja, tests, selectors and more." />
+  <meta property="og:url"         content="https://mathieu-bth.github.io/dbt-cheat-sheet" />
+
+  <meta name="twitter:card"        content="summary" />
+  <meta name="twitter:title"       content="dbt Cheat Sheet" />
+  <meta name="twitter:description" content="Quick reference for dbt: CLI, models, Jinja, tests, selectors and more." />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23f97316'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='15' fill='white'>dbt</text></svg>">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -34,78 +48,7 @@
   </button>
 </nav>
 
-<script>
-  const btn    = document.getElementById('theme-toggle');
-  const icon   = btn.querySelector('.toggle-icon');
-  const label  = btn.querySelector('.toggle-label');
-  const root   = document.documentElement;
-  const burger = document.getElementById('burger');
-  const links  = document.querySelector('.nav-links');
-
-  // ── Theme ──
-  function applyTheme(theme) {
-    root.dataset.theme = theme;
-    const isDark = theme === 'dark';
-    icon.textContent  = isDark ? '☀️' : '🌙';
-    label.textContent = isDark ? 'Light' : 'Dark';
-    localStorage.setItem('theme', theme);
-  }
-
-  applyTheme(localStorage.getItem('theme') || 'light');
-
-  btn.addEventListener('click', () => {
-    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
-  });
-
-  // ── Burger ──
-  function closeMenu() {
-    links.classList.remove('open');
-    burger.classList.remove('open');
-    burger.setAttribute('aria-expanded', 'false');
-  }
-
-  burger.addEventListener('click', () => {
-    const isOpen = links.classList.toggle('open');
-    burger.classList.toggle('open', isOpen);
-    burger.setAttribute('aria-expanded', String(isOpen));
-  });
-
-  // Close on link click
-  links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
-
-  // Close on outside click
-  document.addEventListener('click', e => {
-    if (!e.target.closest('nav')) closeMenu();
-  });
-
-  // ── Anchor copy buttons ──
-  document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('section[id]').forEach(section => {
-    const title = section.querySelector('.section-title');
-    if (!title) return;
-
-    const btn = document.createElement('button');
-    btn.className = 'anchor-btn';
-    btn.title = 'Copy link';
-    btn.setAttribute('aria-label', 'Copy section link');
-    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-    title.appendChild(btn);
-
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      const url = `${location.origin}${location.pathname}#${section.id}`;
-      navigator.clipboard.writeText(url).then(() => {
-        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-          btn.classList.remove('copied');
-        }, 1800);
-      });
-    });
-  });
-  }); // DOMContentLoaded
-</script>
+<script src="main.js"></script>
 
 <!-- ══════════════════════════════════════════
      HERO
@@ -120,7 +63,7 @@
        1. PROJECT STRUCTURE
   ══════════════════════════════════════ -->
   <section id="structure">
-    <div class="section-title"><span class="icon">📁</span> Project Structure</div>
+    <h2 class="section-title"><span class="icon">📁</span> Project Structure</h2>
     <div class="card">
       <pre><code><span class="cm"># Typical dbt project layout</span>
 my_project/
@@ -148,7 +91,7 @@ my_project/
        2. CLI COMMANDS
   ══════════════════════════════════════ -->
   <section id="cli">
-    <div class="section-title"><span class="icon">⌨️</span> CLI Commands</div>
+    <h2 class="section-title"><span class="icon">⌨️</span> CLI Commands</h2>
     <div class="grid">
 
       <div class="card">
@@ -225,7 +168,7 @@ dbt build <span class="ac">--project-dir</span> <span class="str">"$DBT_PROJECT_
        3. SELECTOR SYNTAX
   ══════════════════════════════════════ -->
   <section id="selectors">
-    <div class="section-title"><span class="icon">🎯</span> Selector Syntax</div>
+    <h2 class="section-title"><span class="icon">🎯</span> Selector Syntax</h2>
     <div class="grid">
 
       <div class="card">
@@ -298,7 +241,7 @@ dbt run <span class="ac">-s</span> result:error+ <span class="ac">--state</span>
        4. MODEL CONFIGURATION
   ══════════════════════════════════════ -->
   <section id="models">
-    <div class="section-title"><span class="icon">⚙️</span> Model Configuration</div>
+    <h2 class="section-title"><span class="icon">⚙️</span> Model Configuration</h2>
     <div class="grid">
 
       <div class="card">
@@ -379,7 +322,7 @@ models:
        4. REF & SOURCE
   ══════════════════════════════════════ -->
   <section id="ref-source">
-    <div class="section-title"><span class="icon">🔗</span> ref() &amp; source()</div>
+    <h2 class="section-title"><span class="icon">🔗</span> ref() &amp; source()</h2>
     <div class="grid">
 
       <div class="card">
@@ -424,7 +367,7 @@ dbt source freshness</code></pre>
        5. TESTING
   ══════════════════════════════════════ -->
   <section id="testing">
-    <div class="section-title"><span class="icon">✅</span> Testing</div>
+    <h2 class="section-title"><span class="icon">✅</span> Testing</h2>
     <div class="grid">
 
       <div class="card">
@@ -475,7 +418,7 @@ dbt source freshness</code></pre>
        6. JINJA & MACROS
   ══════════════════════════════════════ -->
   <section id="jinja">
-    <div class="section-title"><span class="icon">🧩</span> Jinja &amp; Macros</div>
+    <h2 class="section-title"><span class="icon">🧩</span> Jinja &amp; Macros</h2>
     <div class="grid">
 
       <div class="card">
@@ -550,7 +493,7 @@ dbt source freshness</code></pre>
        7. INCREMENTAL MODELS
   ══════════════════════════════════════ -->
   <section id="incremental">
-    <div class="section-title"><span class="icon">📈</span> Incremental Models</div>
+    <h2 class="section-title"><span class="icon">📈</span> Incremental Models</h2>
     <div class="grid">
 
       <div class="card">
@@ -608,7 +551,7 @@ dbt source freshness</code></pre>
        8. YAML / PROPERTIES
   ══════════════════════════════════════ -->
   <section id="yaml">
-    <div class="section-title"><span class="icon">📄</span> YAML / Properties</div>
+    <h2 class="section-title"><span class="icon">📄</span> YAML / Properties</h2>
     <div class="grid">
 
       <div class="card">
@@ -677,7 +620,7 @@ columns:
        9. USEFUL PACKAGES
   ══════════════════════════════════════ -->
   <section id="packages">
-    <div class="section-title"><span class="icon">📦</span> Useful Packages</div>
+    <h2 class="section-title"><span class="icon">📦</span> Useful Packages</h2>
     <div class="card">
       <div class="card-title">packages.yml</div>
       <pre><code>packages:
