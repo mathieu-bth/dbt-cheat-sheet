@@ -22,9 +22,8 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     NAV
-══════════════════════════════════════════ -->
+<!-- ══ NAV ══ -->
+<header>
 <nav>
   <div class="nav-brand">dbt <span>Cheat Sheet</span></div>
   <ul class="nav-links">
@@ -47,21 +46,18 @@
     <span></span><span></span><span></span>
   </button>
 </nav>
+</header>
 
 <script src="main.js"></script>
 
-<!-- ══════════════════════════════════════════
-     HERO
-══════════════════════════════════════════ -->
-<div class="wrapper">
+<!-- ══ HERO ══ -->
+<main class="wrapper">
   <div class="hero">
     <h1><em>dbt</em> Cheat Sheet</h1>
     <p>Quick reference for data build tool — models, tests, Jinja, CLI &amp; more.</p>
   </div>
 
-  <!-- ══════════════════════════════════════
-       1. PROJECT STRUCTURE
-  ══════════════════════════════════════ -->
+  <!-- ══ 1. PROJECT STRUCTURE ══ -->
   <section id="structure">
     <h2 class="section-title"><span class="icon">📁</span> Project Structure</h2>
     <div class="card">
@@ -87,9 +83,7 @@ my_project/
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       2. CLI COMMANDS
-  ══════════════════════════════════════ -->
+  <!-- ══ 2. CLI COMMANDS ══ -->
   <section id="cli">
     <h2 class="section-title"><span class="icon">⌨️</span> CLI Commands</h2>
     <div class="grid">
@@ -164,9 +158,7 @@ dbt build <span class="ac">--project-dir</span> <span class="str">"$DBT_PROJECT_
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       3. SELECTOR SYNTAX
-  ══════════════════════════════════════ -->
+  <!-- ══ 3. SELECTOR SYNTAX ══ -->
   <section id="selectors">
     <h2 class="section-title"><span class="icon">🎯</span> Selector Syntax</h2>
     <div class="grid">
@@ -237,9 +229,7 @@ dbt run <span class="ac">-s</span> result:error+ <span class="ac">--state</span>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       4. MODEL CONFIGURATION
-  ══════════════════════════════════════ -->
+  <!-- ══ 4. MODEL CONFIGURATION ══ -->
   <section id="models">
     <h2 class="section-title"><span class="icon">⚙️</span> Model Configuration</h2>
     <div class="grid">
@@ -318,9 +308,7 @@ models:
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       4. REF & SOURCE
-  ══════════════════════════════════════ -->
+  <!-- ══ 5. REF & SOURCE ══ -->
   <section id="ref-source">
     <h2 class="section-title"><span class="icon">🔗</span> ref() &amp; source()</h2>
     <div class="grid">
@@ -363,9 +351,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       5. TESTING
-  ══════════════════════════════════════ -->
+  <!-- ══ 6. TESTING ══ -->
   <section id="testing">
     <h2 class="section-title"><span class="icon">✅</span> Testing</h2>
     <div class="grid">
@@ -414,9 +400,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       6. JINJA & MACROS
-  ══════════════════════════════════════ -->
+  <!-- ══ 7. JINJA & MACROS ══ -->
   <section id="jinja">
     <h2 class="section-title"><span class="icon">🧩</span> Jinja &amp; Macros</h2>
     <div class="grid">
@@ -489,9 +473,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       7. INCREMENTAL MODELS
-  ══════════════════════════════════════ -->
+  <!-- ══ 8. INCREMENTAL MODELS ══ -->
   <section id="incremental">
     <h2 class="section-title"><span class="icon">📈</span> Incremental Models</h2>
     <div class="grid">
@@ -547,9 +529,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       8. YAML / PROPERTIES
-  ══════════════════════════════════════ -->
+  <!-- ══ 9. YAML / PROPERTIES ══ -->
   <section id="yaml">
     <h2 class="section-title"><span class="icon">📄</span> YAML / Properties</h2>
     <div class="grid">
@@ -616,9 +596,7 @@ columns:
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       9. USEFUL PACKAGES
-  ══════════════════════════════════════ -->
+  <!-- ══ 10. USEFUL PACKAGES ══ -->
   <section id="packages">
     <h2 class="section-title"><span class="icon">📦</span> Useful Packages</h2>
     <div class="card">
@@ -706,7 +684,7 @@ dbt run-operation <span class="fn">audit_helper.compare_relations</span> \
   <footer>
     dbt cheat sheet &mdash; built with plain HTML &amp; CSS &mdash; 2025
   </footer>
-</div>
+</main>
 
 </body>
 </html>
