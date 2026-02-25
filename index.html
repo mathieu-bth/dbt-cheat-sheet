@@ -175,26 +175,47 @@ my_project/
 
       <div class="card">
         <div class="card-title">Useful flags</div>
-        <pre><code><span class="cm"># Run / test specific models</span>
-dbt run <span class="ac">--select</span> staging.stg_orders
-dbt run <span class="ac">--select</span> tag:daily
-dbt run <span class="ac">--exclude</span> mart.fct_heavy
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Flag</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>--select / -s</code></td><td>Run only the specified models (name, path, tag…)</td></tr>
+              <tr><td><code>--exclude</code></td><td>Exclude matching models from the selection</td></tr>
+              <tr><td><code>--target / -t</code></td><td>Use a specific profile target (dev, prod, ci…)</td></tr>
+              <tr><td><code>--threads</code></td><td>Number of models to build in parallel</td></tr>
+              <tr><td><code>--full-refresh</code></td><td>Drop and rebuild incremental models from scratch</td></tr>
+              <tr><td><code>--defer</code></td><td>Resolve unselected refs from another target (prod) instead of building them</td></tr>
+              <tr><td><code>--state</code></td><td>Path to a folder containing a reference <code>manifest.json</code> (used by <code>--defer</code> and <code>state:</code> selector)</td></tr>
+              <tr><td><code>--vars</code></td><td>Pass key/value variables at runtime: <code>--vars '{"key": "val"}'</code></td></tr>
+              <tr><td><code>--no-version-check</code></td><td>Skip the dbt version compatibility check</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-<span class="cm"># Graph operators (see Selectors section)</span>
-dbt run <span class="ac">-s</span> +fct_orders      <span class="cm"># model + all ancestors</span>
-dbt run <span class="ac">-s</span> fct_orders+     <span class="cm"># model + all descendants</span>
-dbt run <span class="ac">-s</span> +fct_orders+    <span class="cm"># full lineage</span>
-dbt run <span class="ac">-s</span> 1+fct_orders    <span class="cm"># model + 1 parent level</span>
+      <div class="card grid-wide">
+        <div class="card-title">Examples</div>
+        <pre><code><span class="cm"># Build specific models on prod with more parallelism</span>
+dbt build <span class="ac">-s</span> stg_orders fct_orders <span class="ac">--target</span> prod
 
-<span class="cm"># Target &amp; threads</span>
-dbt run <span class="ac">--target</span> prod
-dbt run <span class="ac">--threads</span> 8
+<span class="cm"># Full refresh an incremental model, passing a runtime variable</span>
+dbt run <span class="ac">-s</span> fct_events <span class="ac">--full-refresh</span> <span class="ac">--vars</span> <span class="str">'{"start_date": "2024-01-01"}'</span>
 
-<span class="cm"># Full refresh incremental</span>
-dbt run <span class="ac">--full-refresh</span>
+<span class="cm"># Test a subset of models, excluding a known flaky one</span>
+dbt test <span class="ac">-s</span> stg_orders fct_orders <span class="ac">--exclude</span> stg_legacy</code></pre>
+      </div>
 
-<span class="cm"># Defer to prod state (slim CI)</span>
-dbt run <span class="ac">--defer --state</span> ./prod_artifacts</code></pre>
+      <div class="card grid-wide">
+        <div class="card-title">Slim CI pipeline</div>
+        <pre><code><span class="cm"># Build only modified models and their descendants — avoids rebuilding everything</span>
+dbt build <span class="ac">--project-dir</span> <span class="str">"$DBT_PROJECT_DIR"</span> \
+          <span class="ac">--target</span> ci \
+          <span class="ac">--state</span> state \
+          <span class="ac">--defer</span> \
+          <span class="ac">--select</span> <span class="str">"+state:modified+"</span></code></pre>
+        <div class="note">
+          <strong>Prerequisite:</strong> the <code>state/</code> folder must contain the production <code>manifest.json</code> before running (e.g. downloaded from an artifact store at the start of the pipeline). <code>--defer</code> resolves unselected models from the prod target instead of rebuilding them.
+        </div>
       </div>
 
     </div>
@@ -246,25 +267,28 @@ dbt run <span class="ac">--defer --state</span> ./prod_artifacts</code></pre>
       </div>
 
       <div class="card">
-        <div class="card-title">Intersections, unions &amp; YAML selectors</div>
-        <pre><code><span class="cm"># Union (space-separated = OR)</span>
-dbt run <span class="ac">-s</span> stg_orders fct_orders
+        <div class="card-title">Unions &amp; intersections</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Syntax</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>-s model_a model_b</code></td><td>Union (space = <strong>OR</strong>)</td></tr>
+              <tr><td><code>-s tag:daily<strong>,</strong>config.materialized:table</code></td><td>Intersection models tagged daily <strong>and</strong> materialized as table (<code>,</code> = <strong>AND</strong>)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-<span class="cm"># Intersection (comma = AND)</span>
-dbt run <span class="ac">-s</span> tag:daily,config.materialized:table
+      <div class="card grid-wide">
+        <div class="card-title">Examples</div>
+        <pre><code><span class="cm"># Run all sources from raw_shopify and their descendants</span>
+dbt run <span class="ac">-s</span> source:raw_shopify+
 
-<span class="cm"># YAML selectors file (selectors.yml)</span>
-selectors:
-  - name: <span class="str">nightly_models</span>
-    definition:
-      union:
-        - method: tag
-          value: <span class="str">daily</span>
-        - method: tag
-          value: <span class="str">hourly</span>
+<span class="cm"># Build only models modified since last prod run</span>
+dbt build <span class="ac">-s</span> state:modified+ <span class="ac">--state</span> ./prod_artifacts
 
-<span class="cm"># Use it:</span>
-dbt run <span class="ac">--selector</span> nightly_models</code></pre>
+<span class="cm"># Rerun models that errored in the previous run</span>
+dbt run <span class="ac">-s</span> result:error+ <span class="ac">--state</span> ./target</code></pre>
       </div>
 
     </div>
@@ -339,6 +363,13 @@ models:
       +tags: [<span class="str">'mart'</span>]
     intermediate:
       +materialized: <span class="str">ephemeral</span></code></pre>
+        <div class="note"><strong>Tip:</strong> use <code>+persist_docs</code> to push model and column descriptions from <code>schema.yml</code> as native comments on warehouse objects (supported on Snowflake, BigQuery, Redshift…).
+          <pre><code>models:
+  my_project:
+    +persist_docs:
+      relation: <span class="kw">true</span>   <span class="cm"># model description → table comment</span>
+      columns:  <span class="kw">true</span>   <span class="cm"># column descriptions → column comments</span></code></pre>
+        </div>
       </div>
 
     </div>
@@ -398,6 +429,17 @@ dbt source freshness</code></pre>
 
       <div class="card">
         <div class="card-title">Generic tests (schema.yml)</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Test</th><th>What it checks</th></tr></thead>
+            <tbody>
+              <tr><td><code>unique</code></td><td>No duplicate values in the column</td></tr>
+              <tr><td><code>not_null</code></td><td>No null values in the column</td></tr>
+              <tr><td><code>accepted_values</code></td><td>All values belong to a defined list</td></tr>
+              <tr><td><code>relationships</code></td><td>Every value exists in another model's column (referential integrity)</td></tr>
+            </tbody>
+          </table>
+        </div>
         <pre><code>models:
   - name: <span class="str">fct_orders</span>
     columns:
@@ -418,44 +460,12 @@ dbt source freshness</code></pre>
 
       <div class="card">
         <div class="card-title">Singular tests</div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.25rem">Custom SQL files in <code>tests/</code> that express business-specific assertions generic tests can't cover. dbt runs the query — <strong>any row returned = failure</strong>.</p>
         <pre><code><span class="cm">-- tests/assert_no_negative_revenue.sql</span>
-<span class="cm">-- Test FAILS if this query returns rows</span>
-
 <span class="kw">SELECT</span> order_id, revenue
 <span class="kw">FROM</span> <span class="fn">{{ ref('fct_orders') }}</span>
 <span class="kw">WHERE</span> revenue &lt; <span class="nu">0</span></code></pre>
-        <div class="note"><strong>Convention:</strong> name singular tests <code>assert_*</code>. Any row returned = failure.</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">dbt_utils tests</div>
-        <pre><code>tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-        - <span class="str">order_id</span>
-        - <span class="str">line_item_id</span>
-
-  - dbt_utils.not_null_proportion:
-      at_least: <span class="nu">0.95</span>   <span class="cm"># 95% non-null</span>
-
-  - dbt_utils.expression_is_true:
-      expression: <span class="str">"revenue >= 0"</span></code></pre>
-      </div>
-
-      <div class="card">
-        <div class="card-title">dbt_expectations tests</div>
-        <pre><code>tests:
-  - dbt_expectations.expect_column_values_to_be_between:
-      min_value: <span class="nu">0</span>
-      max_value: <span class="nu">1000000</span>
-
-  - dbt_expectations.expect_column_to_exist
-
-  - dbt_expectations.expect_table_row_count_to_be_between:
-      min_value: <span class="nu">1000</span>
-
-  - dbt_expectations.expect_column_values_to_match_regex:
-      regex: <span class="str">"^[A-Z]{3}-[0-9]{6}$"</span></code></pre>
+        <div class="note"><strong>Convention:</strong> name singular tests <code>assert_*</code>. More flexible than generic tests but not reusable across models.</div>
       </div>
 
     </div>
