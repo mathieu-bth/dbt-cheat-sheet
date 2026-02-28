@@ -23,9 +23,8 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     NAV
-══════════════════════════════════════════ -->
+<!-- ══ NAV ══ -->
+<header>
 <nav>
   <div class="nav-brand">dbt <span>Cheat Sheet</span></div>
   <ul class="nav-links">
@@ -48,21 +47,18 @@
     <span></span><span></span><span></span>
   </button>
 </nav>
+</header>
 
 <script src="main.js"></script>
 
-<!-- ══════════════════════════════════════════
-     HERO
-══════════════════════════════════════════ -->
-<div class="wrapper">
+<!-- ══ HERO ══ -->
+<main class="wrapper">
   <div class="hero">
     <h1><em>dbt</em> Cheat Sheet</h1>
     <p>Quick reference for data build tool — models, tests, Jinja, CLI &amp; more.</p>
   </div>
 
-  <!-- ══════════════════════════════════════
-       1. PROJECT STRUCTURE
-  ══════════════════════════════════════ -->
+  <!-- ══ 1. PROJECT STRUCTURE ══ -->
   <section id="structure">
     <h2 class="section-title"><span class="icon">📁</span> Project Structure</h2>
     <div class="card">
@@ -88,9 +84,7 @@ my_project/
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       2. CLI COMMANDS
-  ══════════════════════════════════════ -->
+  <!-- ══ 2. CLI COMMANDS ══ -->
   <section id="cli">
     <h2 class="section-title"><span class="icon">⌨️</span> CLI Commands</h2>
     <div class="grid">
@@ -165,9 +159,7 @@ dbt build <span class="ac">--project-dir</span> <span class="str">"$DBT_PROJECT_
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       3. SELECTOR SYNTAX
-  ══════════════════════════════════════ -->
+  <!-- ══ 3. SELECTOR SYNTAX ══ -->
   <section id="selectors">
     <h2 class="section-title"><span class="icon">🎯</span> Selector Syntax</h2>
     <div class="grid">
@@ -238,9 +230,7 @@ dbt run <span class="ac">-s</span> result:error+ <span class="ac">--state</span>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       4. MODEL CONFIGURATION
-  ══════════════════════════════════════ -->
+  <!-- ══ 4. MODEL CONFIGURATION ══ -->
   <section id="models">
     <h2 class="section-title"><span class="icon">⚙️</span> Model Configuration</h2>
     <div class="grid">
@@ -319,9 +309,7 @@ models:
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       4. REF & SOURCE
-  ══════════════════════════════════════ -->
+  <!-- ══ 5. REF & SOURCE ══ -->
   <section id="ref-source">
     <h2 class="section-title"><span class="icon">🔗</span> ref() &amp; source()</h2>
     <div class="grid">
@@ -364,9 +352,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       5. TESTING
-  ══════════════════════════════════════ -->
+  <!-- ══ 6. TESTING ══ -->
   <section id="testing">
     <h2 class="section-title"><span class="icon">✅</span> Testing</h2>
     <div class="grid">
@@ -404,7 +390,7 @@ dbt source freshness</code></pre>
 
       <div class="card">
         <div class="card-title">Singular tests</div>
-        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.25rem">Custom SQL files in <code>tests/</code> that express business-specific assertions generic tests can't cover. dbt runs the query — <strong>any row returned = failure</strong>.</p>
+        <p class="card-desc">Custom SQL files in <code>tests/</code> that express business-specific assertions generic tests can't cover. dbt runs the query — <strong>any row returned = failure</strong>.</p>
         <pre><code><span class="cm">-- tests/assert_no_negative_revenue.sql</span>
 <span class="kw">SELECT</span> order_id, revenue
 <span class="kw">FROM</span> <span class="fn">{{ ref('fct_orders') }}</span>
@@ -415,9 +401,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       6. JINJA & MACROS
-  ══════════════════════════════════════ -->
+  <!-- ══ 7. JINJA & MACROS ══ -->
   <section id="jinja">
     <h2 class="section-title"><span class="icon">🧩</span> Jinja &amp; Macros</h2>
     <div class="grid">
@@ -490,9 +474,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       7. INCREMENTAL MODELS
-  ══════════════════════════════════════ -->
+  <!-- ══ 8. INCREMENTAL MODELS ══ -->
   <section id="incremental">
     <h2 class="section-title"><span class="icon">📈</span> Incremental Models</h2>
     <div class="grid">
@@ -548,9 +530,7 @@ dbt source freshness</code></pre>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       8. YAML / PROPERTIES
-  ══════════════════════════════════════ -->
+  <!-- ══ 9. YAML / PROPERTIES ══ -->
   <section id="yaml">
     <h2 class="section-title"><span class="icon">📄</span> YAML / Properties</h2>
     <div class="grid">
@@ -617,12 +597,27 @@ columns:
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════
-       9. USEFUL PACKAGES
-  ══════════════════════════════════════ -->
+  <!-- ══ 10. USEFUL PACKAGES ══ -->
   <section id="packages">
     <h2 class="section-title"><span class="icon">📦</span> Useful Packages</h2>
     <div class="card">
+      <div class="card-title">Package summary</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Package</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td><code>dbt_utils</code></td><td>Macros: star, surrogate key, date spine, pivot, tests</td></tr>
+            <tr><td><code>dbt_expectations</code></td><td>Rich data-quality tests (Great Expectations style)</td></tr>
+            <tr><td><code>codegen</code></td><td>Auto-generate YAML &amp; base model SQL</td></tr>
+            <tr><td><code>audit_helper</code></td><td>Compare relations during refactors</td></tr>
+            <tr><td><code>dbt_project_evaluator</code></td><td>Enforce dbt best practices as tests</td></tr>
+            <tr><td><code>elementary</code></td><td>Data observability &amp; anomaly detection</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card grid-sub">
       <div class="card-title">packages.yml</div>
       <pre><code>packages:
   - package: <span class="str">dbt-labs/dbt_utils</span>
@@ -635,7 +630,7 @@ columns:
     version: <span class="str">[">=0.9.0", "<1.0.0"]</span></code></pre>
     </div>
 
-    <div class="grid" style="margin-top:1rem">
+    <div class="grid grid-sub">
 
       <div class="card">
         <div class="card-title">dbt_utils — highlights</div>
@@ -684,30 +679,18 @@ dbt run-operation <span class="fn">audit_helper.compare_relations</span> \
 <span class="cm"># Useful during refactors to validate parity</span></code></pre>
       </div>
 
-      <div class="card">
-        <div class="card-title">Package summary</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Package</th><th>Best for</th></tr></thead>
-            <tbody>
-              <tr><td><code>dbt_utils</code></td><td>Macros: star, surrogate key, date spine, pivot, tests</td></tr>
-              <tr><td><code>dbt_expectations</code></td><td>Rich data-quality tests (Great Expectations style)</td></tr>
-              <tr><td><code>codegen</code></td><td>Auto-generate YAML &amp; base model SQL</td></tr>
-              <tr><td><code>audit_helper</code></td><td>Compare relations during refactors</td></tr>
-              <tr><td><code>dbt_project_evaluator</code></td><td>Enforce dbt best practices as tests</td></tr>
-              <tr><td><code>elementary</code></td><td>Data observability &amp; anomaly detection</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
     </div>
   </section>
 
   <footer>
-    dbt cheat sheet &mdash; built with plain HTML &amp; CSS &mdash; 2025
+    dbt cheat sheet &mdash; built by <a href="https://mathieuberthier.com/en/" target="_blank" rel="noopener">Mathieu Berthier</a> with plain HTML &amp; CSS &mdash; 2026
   </footer>
-</div>
+</main>
+
+<button id="back-to-top" class="back-to-top" aria-label="Back to top" title="Back to top">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
 
 </body>
 </html>
