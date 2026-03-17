@@ -99,7 +99,7 @@ my_project/
             <tbody>
               <tr><td><code>dbt run</code></td><td>Execute models (SQL)</td></tr>
               <tr><td><code>dbt test</code></td><td>Run all tests</td></tr>
-              <tr><td><code>dbt build</code></td><td>run + test + seed + snapshot</td></tr>
+              <tr><td><code>dbt build</code></td><td>seeds → snapshots → models → tests</td></tr>
               <tr><td><code>dbt compile</code></td><td>Compile Jinja → SQL (no execution)</td></tr>
               <tr><td><code>dbt seed</code></td><td>Load CSV seeds to warehouse</td></tr>
               <tr><td><code>dbt snapshot</code></td><td>Execute snapshots</td></tr>
@@ -107,6 +107,7 @@ my_project/
               <tr><td><code>dbt docs serve</code></td><td>Serve docs locally</td></tr>
               <tr><td><code>dbt debug</code></td><td>Check connection &amp; config</td></tr>
               <tr><td><code>dbt deps</code></td><td>Install packages</td></tr>
+              <tr><td><code>dbt source freshness</code></td><td>Check source freshness against configured thresholds</td></tr>
               <tr><td><code>dbt clean</code></td><td>Delete target/ &amp; dbt_packages/</td></tr>
             </tbody>
           </table>
